@@ -18,6 +18,23 @@ public class InventoryDaoImpl implements InventoryDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
+    public Inventory getInventoryById(Integer inventoryId) {
+        String sql = "SELECT inventory_id, isbn, status, store_time " +
+                " FROM `inventory` WHERE inventory_id = :inventoryId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("inventoryId", inventoryId);
+
+        List<Inventory> inventoryList = namedParameterJdbcTemplate.query(sql, map, new InventoryRowMapper());
+
+        if(inventoryList.size() > 0){
+            return inventoryList.get(0);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
     public List<Inventory> getInventoriesByIsbn(String isbn) {
         String sql = "SELECT inventory_id, isbn, status, store_time " +
                 " FROM `inventory` WHERE isbn = :isbn";
@@ -25,15 +42,20 @@ public class InventoryDaoImpl implements InventoryDao {
         Map<String, Object> map = new HashMap<>();
         map.put("isbn", isbn);
 
-        System.out.println("sql: " + sql);
-
         List<Inventory> inventoryList = namedParameterJdbcTemplate.query(sql, map, new InventoryRowMapper());
 
-        System.out.println(inventoryList.size());
-        for(int i=0;i<inventoryList.size();i++){
-            System.out.println(inventoryList.get(i));
-        }
-
         return inventoryList;
+    }
+
+    @Override
+    public void updateStatus(Integer inventoryId, String status) {
+        String sql = "UPDATE inventory SET status = :status " +
+                " WHERE inventory_id = :inventoryId ";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("inventoryId" ,inventoryId);
+        map.put("status", status);
+
+        namedParameterJdbcTemplate.update(sql, map);
     }
 }
