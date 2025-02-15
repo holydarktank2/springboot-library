@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class UserServiceImpl implements UserService {
 
@@ -51,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(UserLoginRequest userLoginRequest) {
+    public Map<String, Object> login(UserLoginRequest userLoginRequest) {
         User user = userDao.getUserByPhoneNumber(userLoginRequest.getPhoneNumber());
         if(user == null){
             logger.warn("該 Phone number {} 不存在", userLoginRequest.getPhoneNumber());
@@ -59,11 +62,18 @@ public class UserServiceImpl implements UserService {
         }
 
         //使用BCrypt比對資料
-        if(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())){
-            return jwtUtil.generateToken(user.getPhoneNumber());
-        }else {
+        if(!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())){
             logger.warn("該 Phone number {} 密碼不正確", userLoginRequest.getPhoneNumber());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
+
+        //登入成功生成token
+        String token = jwtUtil.generateToken(user.getPhoneNumber());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", user.getUserId());
+        response.put("token", token);
+
+        return response;
     }
 }
