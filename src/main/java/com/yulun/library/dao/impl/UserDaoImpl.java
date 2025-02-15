@@ -24,8 +24,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserById(Integer userId) {
-        String sql = "SELECT user_id, phone_number, password, user_name, registration_time, last_login_time " +
-                " FROM user WHERE user_id = :userId";
+//        String sql = "SELECT user_id, phone_number, password, user_name, registration_time, last_login_time " +
+//                " FROM user WHERE user_id = :userId";
+        String sql = "CALL get_user_by_id(:userId)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
@@ -41,8 +42,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByPhoneNumber(String phoneNumber) {
-        String sql = "SELECT user_id, phone_number, password, user_name, registration_time, last_login_time " +
-                " FROM user WHERE phone_number = :phoneNumber";
+//        String sql = "SELECT user_id, phone_number, password, user_name, registration_time, last_login_time " +
+//                " FROM user WHERE phone_number = :phoneNumber";
+        String sql = "CALL get_user_by_phone_number(:phoneNumber)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("phoneNumber", phoneNumber);
@@ -58,8 +60,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Integer createUser(UserRegisterRequest userRegisterRequest) {
-        String sql = "INSERT INTO user (phone_number, password, user_name, registration_time, last_login_time) " +
-                " VALUES(:phoneNumber, :password, :userName, :registrationTime, :lastLoginTime) ";
+//        String sql = "INSERT INTO user (phone_number, password, user_name, registration_time, last_login_time) " +
+//                " VALUES(:phoneNumber, :password, :userName, :registrationTime, :lastLoginTime) ";
+        String sql = "CALL insert_user(:phoneNumber, :password, :userName, :registrationTime, :lastLoginTime, @newUserId)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("phoneNumber", userRegisterRequest.getPhoneNumber());
@@ -70,11 +73,11 @@ public class UserDaoImpl implements UserDao {
         map.put("registrationTime", now);
         map.put("lastLoginTime", now);
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
 
-        Integer userId = keyHolder.getKey().intValue();
+        Integer userId = namedParameterJdbcTemplate.getJdbcTemplate().queryForObject("SELECT @newUserId", Integer.class);
 
         return userId;
     }
