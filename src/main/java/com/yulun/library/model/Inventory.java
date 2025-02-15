@@ -3,17 +3,17 @@ package com.yulun.library.model;
 import java.util.Date;
 
 public class Inventory {
-    Integer inventorId;
+    Integer inventoryId;
     String isbn;
     String status;
     Date storeTime;
 
-    public Integer getInventorId() {
-        return inventorId;
+    public Integer getInventoryId() {
+        return inventoryId;
     }
 
-    public void setInventorId(Integer inventorId) {
-        this.inventorId = inventorId;
+    public void setInventoryId(Integer inventoryId) {
+        this.inventoryId = inventoryId;
     }
 
     public String getIsbn() {
